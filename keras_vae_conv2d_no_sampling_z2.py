@@ -38,7 +38,7 @@ def plot_results(models,
     x_test, y_test = data
     os.makedirs(model_name, exist_ok=True)
 
-    filename1 = "vae_mean_7"
+    filename1 = "./mnist1000/vae_mean100L2_3"
     # display a 2D plot of the digit classes in the latent space
     z_mean = encoder.predict(x_test, batch_size=batch_size)
     plt.figure(figsize=(12, 10))
@@ -47,10 +47,10 @@ def plot_results(models,
     plt.xlabel("z[0]")
     plt.ylabel("z[1]")
     plt.savefig(filename1+"z0z1.png")
-    plt.show()
+    plt.pause(1)
     plt.close()
 
-    filename2 = "digits_over_latent_7"
+    filename2 = "./mnist1000/digits_over_latent100L2_3"
     # display a 30x30 2D manifold of digits
     n = 30
     digit_size = 28
@@ -78,9 +78,28 @@ def plot_results(models,
     plt.ylabel("z[1]")
     plt.imshow(figure, cmap='Greys_r')
     plt.savefig(filename2+".png")
-    plt.pause(1)
+    plt.pause(0.01)
     plt.close()
 
+def plot_results2(models,
+                 data,
+                 batch_size=128,
+                 model_name="vae_mnist"):
+    #z0=np.array([-3.7,-2.9])
+    #z1=np.array([0.4,2.7])
+    
+    for t in range(360):
+        s=t/360
+        #z_sample=np.array([s*z0+(1-s)*z1])
+        z_sample=np.array([[2*np.cos(2*s*np.pi),2*np.sin(2*s*np.pi)]])
+        x_decoded = decoder.predict(z_sample)
+        plt.imshow(x_decoded.reshape(28, 28))
+        plt.title("z_sample="+str(t))
+        plt.savefig('./mnist1000/360/z_sample_t{}'.format(t))
+        plt.pause(0.01)
+        plt.close()
+    
+    
 # MNIST dataset
 (x_train, y_train), (x_test, y_test) = mnist.load_data()
 image_size = x_train.shape[1]
@@ -96,7 +115,7 @@ input_shape = (image_size, image_size, 1)
 intermediate_dim = 512
 batch_size = 128
 latent_dim = 2
-epochs = 100
+epochs = 20
 filters = 16
 kernel_size = 3
 
@@ -135,8 +154,13 @@ vae = Model(inputs, outputs, name='vae_mlp')
 vae.compile(loss='binary_crossentropy',optimizer='adam') #loss='binary_crossentropy' #loss="mse"
 
 # 学習に使うデータを限定する
-x_train1 = x_train[y_train==7]
-x_test1 = x_test[y_test==7]
+x_train1 = x_train  #[y_train==0] #7_8_4
+x_test1 = x_test  #[y_test==0] #7_8_4
+print(len(x_train1),len(x_test1))
+
+#vae.load_weights('vae_mnist_weights_100.h5')
+#encoder.load_weights('./mnist1000/encoder_mnist_weightsL2_20.h5')
+#decoder.load_weights('./mnist1000/decoder_mnist_weightsL2_20.h5')
 
 # autoencoderの実行
 vae.fit(x_train1,x_train1,
@@ -152,11 +176,20 @@ plot_results(models,
              batch_size=batch_size,
              model_name="vae_mlp")
 
+plot_results2(models,
+             data,
+             batch_size=batch_size,
+             model_name="vae_mlp")
+
+vae.save_weights('./mnist1000/vae_mnist_weightsL2_20.h5')
+encoder.save_weights('./mnist1000/encoder_mnist_weightsL2_20.h5')
+decoder.save_weights('./mnist1000/decoder_mnist_weightsL2_20.h5')
+
 # 実行結果の表示
-n = 10
+n = 20
 decoded_imgs = vae.predict(x_test[:n])
 
-plt.figure(figsize=(10, 4))
+plt.figure(figsize=(20, 4))
 for i in range(n):
     # original_image
     orig_img = x_test[i].reshape(image_size, image_size)
@@ -188,15 +221,15 @@ for i in range(n):
     plt.imshow(diff_img, cmap=plt.cm.jet)
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
-plt.savefig("autodetect_7.jpg")
+plt.savefig("./mnist1000/autodetectL48_5.jpg")
 plt.pause(1)
 plt.close()
 
 # 学習結果の保存
-vae.save('./ae_mnist_7.h5')
+vae.save('./ae_mnist100L256_2.h5')
 
 # json and weights
 model_json = vae.to_json()
 with open('ae_mnist.json', 'w') as json_file:
     json_file.write(model_json)
-vae.save_weights('ae_mnist_weights_7.h5')
+vae.save_weights('ae_mnist_weights100L10_2.h5')
