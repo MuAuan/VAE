@@ -83,7 +83,7 @@ def plot_results_3(models, data, z0,z1, batch_size=128, model_name="vae_mnist"):
     ax=fig.add_subplot(111)
     ax.imshow(x_decoded.reshape(28, 28))
     ax.set_title("z_sample=[{0:6.3f},{1:6.3f}]".format(z0,z1))
-    plt.pause(1)
+    plt.pause(0.1)
     plt.savefig("./mnist1000/3/3_[{0:6.3f},{1:6.3f}].png".format(z0,z1))
     #plt.close()
     
@@ -165,20 +165,21 @@ plot_results(models,
 from PIL import Image
 import matplotlib.cm as cm
 
-img=Image.open("./mnist1000/"+str(3)+"/digits_over_latent100L2_3.png")
-#img=cv2.imread("./mnist1000/"+str(s)+"/digits_over_latent100L2_3.png")
+#img=Image.open("./mnist1000/"+str(3)+"/digits_over_latent100L2_3.png")
+img=cv2.imread("./mnist1000/"+str(s)+"/digits_over_latent100L2_3.png")
 #cv2.imshow("img",img)
-plt.imshow(img)
+#plt.imshow(img)
 
 for i in range(100):
     t=2*i/100
-    z0=3*np.cos(t*np.pi)
-    z1=3*np.sin((1-t)*np.pi)
+    z0=3*np.cos(t*np.pi)+2.2
+    z1=3*np.sin((1-t)*np.pi)+2.8
     plt.figure(figsize=(16, 16))
     plt.imshow(img)
-    plt.scatter([300+80*z0],[650-70*z1],s=1000 ,c="yellow" , marker="o")
+    plt.scatter([300+80*(z0)],[650-70*(z1)],s=1000 ,c="yellow" , marker="o")
+    cv2.circle(img,(int(300+80*(z0)),int(650-70*(z1))), 4, (0,0,255), -1)
     plt.axis('off')
-    plt.pause(1)
+    plt.pause(0.1)
     plt.savefig("./mnist1000/3/map3_[{0:6.3f},{1:6.3f}].png".format(z0,z1))
     plt.close()
     plot_results_3(models,
