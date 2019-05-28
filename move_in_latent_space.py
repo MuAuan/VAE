@@ -76,7 +76,7 @@ def plot_results(models,
     #plt.pause(1)
     #plt.close()
 
-def plot_results_3(models, data, z0,z1, batch_size=128, model_name="vae_mnist"):
+def plot_results_3(models, data, z0,z1,i, batch_size=128, model_name="vae_mnist"):
     z_sample=np.array([[np.array(z0),np.array(z1)]])
     x_decoded = decoder.predict(z_sample)
     fig=plt.figure()
@@ -84,7 +84,8 @@ def plot_results_3(models, data, z0,z1, batch_size=128, model_name="vae_mnist"):
     ax.imshow(x_decoded.reshape(28, 28))
     ax.set_title("z_sample=[{0:6.3f},{1:6.3f}]".format(z0,z1))
     plt.pause(0.1)
-    plt.savefig("./mnist1000/3/3_[{0:6.3f},{1:6.3f}].png".format(z0,z1))
+    #plt.savefig("./mnist1000/3/3_[{0:6.3f},{1:6.3f}].png".format(z0,z1))
+    plt.savefig("./mnist1000/3/3_{}.png".format(i))
     #plt.close()
     
     
@@ -180,12 +181,14 @@ for i in range(100):
     cv2.circle(img,(int(300+80*(z0)),int(650-70*(z1))), 4, (0,0,255), -1)
     plt.axis('off')
     plt.pause(0.1)
-    plt.savefig("./mnist1000/3/map3_[{0:6.3f},{1:6.3f}].png".format(z0,z1))
+    #plt.savefig("./mnist1000/3/map3_[{0:6.3f},{1:6.3f}].png".format(z0,z1))
+    plt.savefig("./mnist1000/3/map3_{}.png".format(i))
     plt.close()
     plot_results_3(models,
                   data,
                   z0,
                   z1,
+                  i, 
                   batch_size=batch_size,
                   model_name="vae_mlp"
                  )
