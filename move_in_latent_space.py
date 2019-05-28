@@ -23,7 +23,7 @@ from keras.models import Sequential
 from keras.layers import Dropout, Activation, Flatten
 from keras.layers import Reshape, Embedding,InputLayer
 
-s=2
+s=3
 def plot_results(models,
                  data,
                  batch_size=32,
