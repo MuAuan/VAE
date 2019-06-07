@@ -85,12 +85,12 @@ def plot_irregular(x_test,x_test_gray,decoded_imgs,epoch):
         reconst_img = decoded_imgs[i].reshape(64,64,3)   #128, 128,3) #32,.32,3
 
         # diff image
-        diff_img = ((orig_img0 - reconst_img)+2)/4
-        diff_img = (diff_img*255).astype(np.uint8)
+        #diff_img = ((orig_img0 - reconst_img)+2)/4
+        #diff_img = (diff_img*255).astype(np.uint8)
         orig_img0 = (orig_img0*255).astype(np.uint8)
         orig_img = (orig_img*255).astype(np.uint8)
         reconst_img = (reconst_img*255).astype(np.uint8)
-        diff_img_color = cv2.applyColorMap(diff_img, cv2.COLORMAP_JET)
+        #diff_img_color = cv2.applyColorMap(diff_img, cv2.COLORMAP_JET)
 
         # display original
         ax = plt.subplot(4, n,  i + 1)
@@ -108,12 +108,13 @@ def plot_irregular(x_test,x_test_gray,decoded_imgs,epoch):
         plt.imshow(reconst_img, cmap=plt.cm.gray)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
-        
+        """
         # display diff
         ax = plt.subplot(4, n, i + n*3 + 1)
         plt.imshow(diff_img, cmap=plt.cm.jet)
         ax.get_xaxis().set_visible(False)
         ax.get_yaxis().set_visible(False)
+        """
     plt.savefig("./mnist1000/x4color/10/autodetect_color"+str(epoch)+".jpg")
     plt.pause(1)
     plt.close()
@@ -132,7 +133,7 @@ y_train=y_train[:60000]
 input_shape = (image_size, image_size, 1)
 batch_size = 8
 latent_dim = 4096
-epochs = 21
+epochs = 101
 s=10
 
 # VAE model = encoder + decoder
@@ -199,7 +200,7 @@ x_test_size = np.array(X_test)
 
 class Check_layer(keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs={}):
-        if epoch%1==0:
+        if epoch%20==0:
             vae.save_weights("./mnist1000/x4color/"+str(s)+"/vae_mnist_weightsL2_"+str(epoch)+"_gray.h5")
             encoder.save_weights("./mnist1000/x4color/"+str(s)+"/encoder_mnist_weightsL2_"+str(epoch)+"_gray.h5")
             decoder.save_weights("./mnist1000/x4color/"+str(s)+"/decoder_mnist_weightsL2_"+str(epoch)+"_gray.h5")
@@ -215,6 +216,9 @@ class Check_layer(keras.callbacks.Callback):
         
 ch_layer = Check_layer()
 callbacks = [ch_layer]
+
+encoder.load_weights("./mnist1000/x4color/"+str(s)+"/encoder_mnist_weightsL2_"+str(20)+"_gray.h5")
+decoder.load_weights("./mnist1000/x4color/"+str(s)+"/decoder_mnist_weightsL2_"+str(20)+"_gray.h5")
 
 # autoencoderの実行
 vae.fit(x_train_gray,x_train_size,
