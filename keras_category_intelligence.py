@@ -15,6 +15,7 @@ from keras.layers import Lambda, Input, Dense, Conv2DTranspose
 from keras.models import Model
 from keras.layers import *
 import matplotlib.pyplot as plt
+import cv2
 
 batch_size = 128
 num_classes = 10
@@ -90,22 +91,48 @@ def encoder_decoder_model(input_image=Input(shape=(28,28,1))):
 item='decoder'
 #latent_dim=2
 encoder_decoder = encoder_decoder_model(input_image=Input(shape=(28,28,1)))
-encoder_decoder.summary()
+#encoder_decoder.summary()
 
 encoder_decoder.compile(loss='binary_crossentropy',optimizer='adam')
 
-for i in range(100):
+#decoder=("decoder0","decoder1","decoder2","decoder3","decoder4","decoder5","decoder6","decoder7","decoder8","decoder9")
+encoder_decoders=[]
+for s in range(10):
+    encoder_decoder.load_weights("./category/encoder_decoder_mnist_weights_"+str(s)+".h5")
+    encoder_decoders.append(encoder_decoder)
+
+encoder_decoders[0].summary()
+
+fig=plt.figure(figsize=(32, 8))
+size=(280,280)
+n=10
+for i in range(n):
     img=x_test1[i]
     cat=model.predict(img.reshape(1,28,28,1))
-    plt.imshow(img.reshape(28,28))
-    plt.pause(1)
     s=np.argmax(cat)
-    encoder_decoder.load_weights("./category/encoder_decoder_mnist_weights_"+str(s)+".h5")
-    print(s,np.argmax(y_test1[i]))
-    cat=encoder_decoder.predict(img.reshape(1,28,28,1))/255
-    plt.imshow(img.reshape(28,28))
-    plt.pause(1)
-    plt.imshow(cat.reshape(28,28))
-    plt.pause(1)
-    print(np.argmax(y_test1[i]))
+    cat=encoder_decoders[s].predict(img.reshape(1,28,28,1))/255
+    ax=fig.add_subplot(3,n,i+1)
+    ax.set_title("cat_"+str(s),size=40)
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    img=cv2.resize(img.reshape(28,28), size,interpolation = cv2.INTER_CUBIC) 
 
+    ax.imshow(img)
+    ax=fig.add_subplot(3,n,i+n+1)
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    cat=cv2.resize(cat.reshape(28,28), size,interpolation = cv2.INTER_CUBIC) 
+    ax.imshow(cat)
+    orig_img=img
+    reconst_img=cat
+    diff_img = ((orig_img - reconst_img)+2)/4
+    #diff_img_color = cv2.applyColorMap(diff_img, cv2.COLORMAP_JET)
+    ax = plt.subplot(3, n, i + n*2 + 1)
+    #diff_img=cv2.resize(diff_img.reshape(28,28), size,interpolation = cv2.INTER_CUBIC) 
+    plt.imshow(diff_img, cmap=plt.cm.jet)
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+plt.savefig("./category/autodetect_mnist.jpg")
+
+plt.show()
+plt.close()
