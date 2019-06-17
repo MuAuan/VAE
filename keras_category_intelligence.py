@@ -28,8 +28,6 @@ x_train = x_train.reshape(60000, 28,28,1)
 x_test = x_test.reshape(10000, 28,28,1)
 x_train = x_train.astype('float32')/255.
 x_test = x_test.astype('float32')/255.
-#x_train /= 255
-#x_test /= 255
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
 x_train1 = x_train #[y_train==s] #7_8_4
@@ -57,15 +55,12 @@ def model_cat(input_image=Input(shape=(28,28,1))):
     x = AveragePooling2D((2, 2))(x)    
     x = Conv2D(256, (3, 3), activation='relu',padding='same')(x)  
     x = Conv2D(256, (3, 3), activation='relu',padding='same')(x)  
-    #x = BatchNormalization(axis=3)(x)  
     x = Dropout(0.5)(x)
     x = AveragePooling2D(pool_size=(2, 2), strides=None, border_mode='valid', dim_ordering='tf')(x)
     x = Flatten()(x)
-    #z_mean = Dense(latent_dim, name='z_mean')(x)
     outputs = Dense(num_classes, activation='softmax')(x)
     return Model(inputs=input_image, outputs=outputs)
 
-latent_dim=2
 model = model_cat(input_image=Input(shape=(28,28,1)))
 model.summary()
 
@@ -88,14 +83,9 @@ def encoder_decoder_model(input_image=Input(shape=(28,28,1))):
     outputs = Conv2DTranspose(1, (3, 3), activation='sigmoid', padding='same')(x)
     return Model(input_image, outputs)
 
-item='decoder'
-#latent_dim=2
 encoder_decoder = encoder_decoder_model(input_image=Input(shape=(28,28,1)))
-#encoder_decoder.summary()
-
 encoder_decoder.compile(loss='binary_crossentropy',optimizer='adam')
 
-#decoder=("decoder0","decoder1","decoder2","decoder3","decoder4","decoder5","decoder6","decoder7","decoder8","decoder9")
 encoder_decoders=[]
 for s in range(10):
     encoder_decoder.load_weights("./category/encoder_decoder_mnist_weights_"+str(s)+".h5")
