@@ -1,9 +1,3 @@
-'''Trains a simple deep NN on the MNIST dataset.
-Gets to 98.40% test accuracy after 20 epochs
-(there is *a lot* of margin for parameter tuning).
-2 seconds per epoch on a K520 GPU.
-'''
-
 from __future__ import print_function
 
 import keras
@@ -64,7 +58,6 @@ def model_cat(input_image=Input(shape=(28,28,1))):
     outputs = Dense(num_classes, activation='softmax')(x)
     return Model(inputs=input_image, outputs=outputs)
 
-latent_dim=2
 model = model_cat(input_image=Input(shape=(28,28,1)))
 model.summary()
 
@@ -72,8 +65,8 @@ model.compile(loss='categorical_crossentropy',
               optimizer=RMSprop(),
               metrics=['accuracy'])
 
-model.load_weights("./category/cat_mnist_weights_"+str(10)+".h5")  #s
-"""
+#model.load_weights("./category/cat_mnist_weights_"+str(10)+".h5")  #s
+
 history = model.fit(x_train1, y_train1,
                     batch_size=batch_size,
                     epochs=epochs,
@@ -81,10 +74,7 @@ history = model.fit(x_train1, y_train1,
                     validation_data=(x_test1, y_test1))
 
 model.save_weights("./category/cat_mnist_weights_"+str(s)+".h5")
-"""
-#score = model.evaluate(x_test1, y_test1, verbose=0)
-#print('Test loss:', score[0])
-#print('Test accuracy:', score[1])
+
 img=x_test1[0]
 cat=model.predict(img.reshape(1,28,28,1))
 plt.imshow(img.reshape(28,28))
@@ -98,7 +88,6 @@ for i in range(10):
     plt.pause(1)
     print(np.argmax(cat),np.argmax(y_test1[i]))
 """
-
 def encoder_decoder_model(input_image=Input(shape=(28,28,1))):
     x = Conv2D(32, (3, 3), activation='relu', strides=2, padding='same')(input_image)
     x = Conv2D(64, (3, 3), activation='relu', strides=2, padding='same')(x)
@@ -112,15 +101,13 @@ def encoder_decoder_model(input_image=Input(shape=(28,28,1))):
     outputs = Conv2DTranspose(1, (3, 3), activation='sigmoid', padding='same')(x)
     return Model(input_image, outputs)
 
-item='decoder'
-#latent_dim=2
 encoder_decoder = encoder_decoder_model(input_image=Input(shape=(28,28,1)))
 encoder_decoder.summary()
 
 encoder_decoder.compile(loss='binary_crossentropy',optimizer='adam')
 
-encoder_decoder.load_weights("./category/encoder_decoder_mnist_weights_"+str(s)+".h5")
-"""
+#encoder_decoder.load_weights("./category/encoder_decoder_mnist_weights_"+str(s)+".h5")
+
 history = encoder_decoder.fit(x_train1, x_train1,
                     batch_size=batch_size,
                     epochs=epochs,
@@ -128,10 +115,6 @@ history = encoder_decoder.fit(x_train1, x_train1,
                     validation_data=(x_test1, x_test1))
 
 encoder_decoder.save_weights("./category/encoder_decoder_mnist_weights_"+str(s)+".h5")
-"""
-#score = encoder_decoder.evaluate(x_test1, x_test1, verbose=0)
-#print('Test loss:', score[0])
-#print('Test accuracy:', score[1])
 
 cat=encoder_decoder.predict(img.reshape(1,28,28,1))/255
 plt.imshow(img.reshape(28,28))
